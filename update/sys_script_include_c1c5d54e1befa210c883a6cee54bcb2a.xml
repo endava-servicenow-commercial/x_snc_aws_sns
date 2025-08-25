@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_snc_aws_sns.ENDAwsSnsIntegrationUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <mobile_callable>false</mobile_callable>
+        <name>ENDAwsSnsIntegrationUtils</name>
+        <sandbox_callable>false</sandbox_callable>
+        <script><![CDATA[var ENDAwsSnsIntegrationUtils = Class.create();
+ENDAwsSnsIntegrationUtils.prototype = {
+    initialize: function() {},
+
+    createIncident: function(message) {
+        if (message.Type == 'Notification') {
+
+            var customPayloadFields = ['u_it_service', 'u_application', 'u_environment', 'u_owning_group', 'assignment_group'];
+
+            var assignmentGroup = this.getAssignmentGroup(message.TopicArn);
+
+            var incident = new GlideRecord("incident");
+            incident.initialize();
+            incident.short_description = "SNS Alarm: " + message.Subject;
+            incident.description = "SNS Details: " + message.Message;
+            incident.caller_id = gs.getProperty('x_snc_aws_sns.end.integration.aws_sns.service_account_id');
+            incident.assignment_group = assignmentGroup;
+            incident.u_owning_group = assignmentGroup;
+            incident.contact_type = 'aws';
+
+            for (var i = 0; i < customPayloadFields.length; i++) {
+
+                if (message.hasOwnProperty(customPayloadFields[i])) {
+
+                    var glideElement = incident.getElement(customPayloadFields[i]);
+                    var descriptor = glideElement.getED();
+                    var result = descriptor.getInternalType();
+                    var table = '';
+                    if (result == 'reference') {
+                        table = glideElement.getReferenceTable();
+                        var id = this.queryRecord(table, message[customPayloadFields[i]]);
+                        message[customPayloadFields[i]] = id;
+                    } else if (result == 'glide_list') {
+                        var dict = new GlideRecord('sys_dictionary');
+                        var qc = dict.addQuery('name', 'task');
+                        qc.addOrCondition('name', incident.getTableName());
+                        dict.addQuery('element', customPayloadFields[i]);
+                        dict.query();
+                        if (dict.next()) {
+                            table = dict.getValue('reference');
+                            var id = this.queryRecord(table, message[customPayloadFields[i]]);
+                            message[customPayloadFields[i]] = id;
+                        }
+                    }
+                    incident[customPayloadFields[i]] = message[customPayloadFields[i]];
+                }
+            }
+            incident.insert();
+        }
+    },
+
+    queryRecord: function(table, displayValue) {
+
+        var id = '';
+        var displayField = '';
+
+        if (table === 'u_ig_environment') {
+            displayField = 'u_description';
+        } else {
+            displayField = "name";
+        }
+
+
+        var tableGr = new GlideRecord(table);
+        tableGr.addQuery(displayField, displayValue);
+        tableGr.query();
+        if (tableGr.next()) {
+            id = tableGr.getUniqueValue();
+        }
+        return id;
+    },
+
+    getAssignmentGroup: function(topicARN) {
+        var assignmentGroup = '';
+
+        var assignmentGroupGr = new GlideRecord('x_snc_aws_sns_m2m_groups_subscription');
+        assignmentGroupGr.addQuery('subscription.topic_arn', topicARN);
+        assignmentGroupGr.addQuery('active', true);
+        assignmentGroupGr.orderBy('order');
+        assignmentGroupGr.query();
+        if (assignmentGroupGr.next()) {
+            assignmentGroup = assignmentGroupGr.getValue('group');
+        } else {
+            assignmentGroup = gs.getProperty('x_snc_aws_sns.end.integration.aws_sns.incident.default_group');
+        }
+
+        return assignmentGroup;
+    },
+
+    type: 'ENDAwsSnsIntegrationUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>radula</sys_created_by>
+        <sys_created_on>2025-08-25 08:07:32</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>c1c5d54e1befa210c883a6cee54bcb2a</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>ENDAwsSnsIntegrationUtils</sys_name>
+        <sys_package display_value="AWS SNS" source="x_snc_aws_sns">24cd01fe13391f006b9054c32244b0f3</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="AWS SNS">24cd01fe13391f006b9054c32244b0f3</sys_scope>
+        <sys_update_name>sys_script_include_c1c5d54e1befa210c883a6cee54bcb2a</sys_update_name>
+        <sys_updated_by>radula</sys_updated_by>
+        <sys_updated_on>2025-08-25 08:10:47</sys_updated_on>
+    </sys_script_include>
+    <sys_es_latest_script action="INSERT_OR_UPDATE">
+        <id>c1c5d54e1befa210c883a6cee54bcb2a</id>
+        <sys_created_by>radula</sys_created_by>
+        <sys_created_on>2025-08-25 08:07:32</sys_created_on>
+        <sys_id>c449d1821b23e210c883a6cee54bcbe9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>radula</sys_updated_by>
+        <sys_updated_on>2025-08-25 08:07:32</sys_updated_on>
+        <table>sys_script_include</table>
+        <use_es_latest>true</use_es_latest>
+    </sys_es_latest_script>
+</record_update>

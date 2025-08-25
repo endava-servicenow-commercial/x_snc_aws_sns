@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_m2m">
+    <sys_m2m action="INSERT_OR_UPDATE">
+        <from_table>x_snc_aws_sns_subscription</from_table>
+        <m2m_from_field>subscription</m2m_from_field>
+        <m2m_from_label>Groups</m2m_from_label>
+        <m2m_table>x_snc_aws_sns_m2m_groups_subscription</m2m_table>
+        <m2m_to_field>group</m2m_to_field>
+        <m2m_to_label>Subscriptions</m2m_to_label>
+        <sys_class_name>sys_m2m</sys_class_name>
+        <sys_created_by>radula</sys_created_by>
+        <sys_created_on>2025-08-25 07:17:09</sys_created_on>
+        <sys_customer_update>false</sys_customer_update>
+        <sys_id>392d818e1bafa210c883a6cee54bcb88</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_snc_aws_sns_m2m_groups_subscription</sys_name>
+        <sys_package display_value="AWS SNS" source="x_snc_aws_sns">24cd01fe13391f006b9054c32244b0f3</sys_package>
+        <sys_policy/>
+        <sys_replace_on_upgrade>false</sys_replace_on_upgrade>
+        <sys_scope display_value="AWS SNS">24cd01fe13391f006b9054c32244b0f3</sys_scope>
+        <sys_update_name>sys_m2m_392d818e1bafa210c883a6cee54bcb88</sys_update_name>
+        <sys_updated_by>radula</sys_updated_by>
+        <sys_updated_on>2025-08-25 07:17:09</sys_updated_on>
+        <to_table>sys_user_group</to_table>
+    </sys_m2m>
+</record_update>
